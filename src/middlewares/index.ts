@@ -1,31 +1,26 @@
-import { getUserBySessionToken } from "controllers/actions";
-import express from "express";
-import { get, identity, merge } from "lodash";
+import { getUserBySessionToken } from "../controllers/actions";
+import express, { NextFunction } from "express"
+import { get, identity, merge } from "lodash"
 
-export const isAuthenticated = async (
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) => {
+export const isAuthenticated = async(req:express.Request, res:express.Response, next:NextFunction) => {
   try {
-    // Verificar token
+    // Verificar token de sesion
     const sessionToken = req.cookies["USER-COOKIE"];
-    if (!sessionToken) {
+    if(!sessionToken){
       return res.sendStatus(403);
     }
 
-    //Verificar token de usuario
-    const existingUser = await getUserBySessionToken(sessionToken);
-    if (!existingUser) {
+    //Vereficar token de usuario
+    const userToken = await getUserBySessionToken(sessionToken);
+    if(!userToken){
       return res.sendStatus(403);
     }
 
-    //Agregar token de usuario a al solicitud
-    merge(req, { identity: existingUser });
-
+    //Guardar los datos del usurio en la request
+    merge(req, {identity:userToken});
     return next();
+
   } catch (error) {
-    console.log(error);
-    return res.sendStatus(200);
+    return res.sendStatus(400);
   }
-};
+}
