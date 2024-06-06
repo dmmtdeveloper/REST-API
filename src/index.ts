@@ -5,7 +5,7 @@ import cookieParser from "cookie-parser";
 import compression from "compression";
 import cors from "cors";
 import mongoose from "mongoose";
-import routes from "./routes/index";
+import routes from "./routes/index"
 
 const app = express();
 app.use(
@@ -21,15 +21,15 @@ app.use(bodyParser.json());
 const server = http.createServer(app);
 
 server.listen(8080, () => {
-  console.log("Server is running on http://localhost:8080");
+  console.log("server is running on http://localhost:8080");
 });
 
-const MONGO_URL =
+const MONOGO_URL =
   "mongodb+srv://david:davidm@cluster0.lbmdqpp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 mongoose.Promise = Promise;
-mongoose.connect(MONGO_URL);
+mongoose.connect(MONOGO_URL);
 mongoose.connection.on("error", (error: Error) => {
-  console.log("Error");
+  console.log("error");
 });
 
 app.use("/", routes());
