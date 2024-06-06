@@ -1,26 +1,45 @@
+import express from "express"
 import { getUserBySessionToken } from "../controllers/actions";
-import express, { NextFunction } from "express"
-import { get, identity, merge } from "lodash"
+import { get , merge } from "lodash";
 
-export const isAuthenticated = async(req:express.Request, res:express.Response, next:NextFunction) => {
-  try {
-    // Verificar token de sesion
-    const sessionToken = req.cookies["USER-COOKIE"];
-    if(!sessionToken){
-      return res.sendStatus(403);
+export const isOwner = async(req:express.Request, res:express.Response, next:express.NextFunction) => {
+    try {
+        const {id} = req.params;
+        const currentId = get(req, "identity._id") as string;
+
+        if(!currentId){
+            return res.sendStatus(403);
+        }
+
+        if(currentId.toString() !== id){
+            return res.sendStatus(403);
+        }
+        return next();
+    } catch (error) {
+        console.log(error)
+        return res.sendStatus(400)
     }
+} 
 
-    //Vereficar token de usuario
-    const userToken = await getUserBySessionToken(sessionToken);
-    if(!userToken){
-      return res.sendStatus(403);
+export const isAuthenticated = async(req:express.Request, res:express.Response, next:express.NextFunction) => {
+    try {
+        //Extraer la cookie del usuario
+        const sessionToken = req.cookies["USER-COOKIE"]
+        if(!sessionToken){
+            return res.sendStatus(403);
+        }
+
+        //validar token de usuario
+        const existingUser = await getUserBySessionToken(sessionToken);
+        if(!existingUser){
+            return res.sendStatus(403);
+        }
+
+        //guardar token de usuario en la request
+        merge(req, {identity:existingUser});
+        return next()
+    } catch (error) {
+        console.log(error)
+        return res.sendStatus(400)
     }
-
-    //Guardar los datos del usurio en la request
-    merge(req, {identity:userToken});
-    return next();
-
-  } catch (error) {
-    return res.sendStatus(400);
-  }
 }
