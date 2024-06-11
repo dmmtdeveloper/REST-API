@@ -58,7 +58,7 @@ export const login = async (req: express.Request, res: express.Response) => {
       return res.sendStatus(403);
     }
 
-    //crear token de sesion convinarlo con el id del usuario y guardarlo
+    //crear token de sesion combinarlo con el id del usuario y guardarlo
     const salt = random();
     user.authentication.sessionToken = authentication(
       salt,
